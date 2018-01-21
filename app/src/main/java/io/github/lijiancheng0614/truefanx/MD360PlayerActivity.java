@@ -50,6 +50,8 @@ import static com.squareup.picasso.MemoryPolicy.NO_STORE;
 public abstract class MD360PlayerActivity extends Activity {
 
     private static final String TAG = "MD360PlayerActivity";
+    private static final boolean debug = false;
+
 
     private static final SparseArray<String> sDisplayMode = new SparseArray<>();
     private static final SparseArray<String> sInteractiveMode = new SparseArray<>();
@@ -153,6 +155,9 @@ public abstract class MD360PlayerActivity extends Activity {
         hotspotPoints.add(findViewById(R.id.hotspot_point1));
         hotspotPoints.add(findViewById(R.id.hotspot_point2));
 
+        if (!debug)
+            findViewById(R.id.scrollView).setVisibility(View.INVISIBLE);
+
         SpinnerHelper.with(this)
                 .setData(sDisplayMode)
                 .setDefault(mVRLibrary.getDisplayMode())
@@ -163,7 +168,7 @@ public abstract class MD360PlayerActivity extends Activity {
                         int i = 0;
                         int size = key == MDVRLibrary.DISPLAY_MODE_GLASS ? 2 : 1;
                         for (View point : hotspotPoints) {
-                            point.setVisibility(i < size ? View.VISIBLE : View.GONE);
+                            point.setVisibility(i < size && debug ? View.VISIBLE : View.GONE);
                             i++;
                         }
                     }
@@ -362,10 +367,12 @@ public abstract class MD360PlayerActivity extends Activity {
                 IMDHotspot hotspot = hitEvent.getHotspot();
                 long hitTimestamp = hitEvent.getTimestamp();
                 String text = hotspot == null ? "nop" : String.format(Locale.CHINESE, "%s  %fs", hotspot.getTitle(), (System.currentTimeMillis() - hitTimestamp) / 1000.0f);
-                hotspotText.setText(text);
+                if (debug)
+                    hotspotText.setText(text);
 
                 String brief = getVRLibrary().getDirectorBrief().toString();
-                directorBriefText.setText(brief);
+                if (debug)
+                    directorBriefText.setText(brief);
 
                 if (System.currentTimeMillis() - hitTimestamp > 5000) {
                     getVRLibrary().resetEyePick();
